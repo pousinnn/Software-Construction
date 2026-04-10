@@ -1,6 +1,7 @@
 //Actividad en clase: Javascript
 //Pau Cortez Balvanera | A01782041
 //April 08, 2026
+//link to repository: https://github.com/pousinnn/Software-Construction/blob/main/Videojuegos/Tareas/js/Paulina_Cortez.js
 
 "use strict";
 
