@@ -25,10 +25,10 @@ function firstNonRepeating(string){ //we create a function with a parameter that
 
 //Problem 2: bubbleSort
 function bubbleSort(array){
-    let m=array.length;
-    for(let i=0; i<m; i++){
+    let m=array.length; //set array size
+    for(let i=0; i<m; i++){ //cycle to repeat the process various times
         for(let k=0; k<m - 1; k++){
-            if (array[k]>array[k+1]){
+            if (array[k]>array[k+1]){  //will compare elements and swap them according to their size (do the bubble process)
                 let exchange=array[k];
                 array[k]=array[k+1];
                 array[k+1]=exchange;
@@ -40,21 +40,21 @@ function bubbleSort(array){
 
 //Problem 3: Invert a set of numbers and be able to modify it
 function invertArray(array){
-    let final = [];
-    for(let i=array.length - 1; i>=0; i--){
-        final.push(array[i]);
+    let final = []; //we set an empty array
+    for(let i=array.length - 1; i>=0; i--){ //cycle that allows to start from the end of the array and c"count backwards"
+        final.push(array[i]); //pushes the elements in reverse
     }
     return final
 }
 
 function invertArrayInplace(array){
     let start=0;
-    let end=array.length-1;
-    while(start<end){
+    let end=array.length-1; //consider the start and end of the array
+    while(start<end){ //loops the process of swapping either fisrt or last
         let result=array[start];
         array[start]=array[end];
         array[end]=result;
-        start++;
+        start++; //we move them
         end--;
     }
     return array;
@@ -63,16 +63,16 @@ function invertArrayInplace(array){
 //Problem 4: Receive a text and return a new one with  the first letter of each word capitalized
 function capitalize(string){
     let final = "";
-    let start=true;
+    let start=true; //considers that we are dealing with uppercases and a new word will be checked
     for(let i=0; i<string.length; i++){
         const letter=string[i];
-        if(letter === " "){
+        if(letter === " "){ //will take into account spaces in order to consider words
             final += letter;
             start=true;
         }   
         else{
             if(start){
-                final += letter.toUpperCase();
+                final += letter.toUpperCase(); //uses a function to capitalize the first letter
                 start = false;
             }
             else{
@@ -84,11 +84,29 @@ function capitalize(string){
 }
 
 //problem 5: mcd will calculate maximum divisor
-function mcd(a,b){
-    if(b===0){
-        return a;
+function mcd(a, b){
+    if(a=== 0){ //will consider the cases where we are given 0
+        return 0;
     }
-    return mcd(b,a%b);
+    if(b=== 0){
+        return 0;
+    }
+    let small; //in here we pin the number that is smaller (either a or b)
+    if(a<b){
+        small= a;
+    } else {
+        small= b;
+    }
+    for(let i=small; i>=1; i--){ //we start with the bigger number and go decreasing
+
+        if(a% i=== 0){ //we use the residue to check if it can be divisible - if is can be divided by both then we take it
+            if(b%i === 0){
+                return i;
+            }
+        }
+    }
+
+    return 1; //in case there is nothing we will only consider number 1
 }
 
 //probelm 6: hackerspeak will change a text to 'hackerspeak'
@@ -103,7 +121,7 @@ function hackerSpeak(string){
     let exchange= "";
     for(let i=0; i<string.length; i++){
         let letter=string[i];
-        if(letter==="a"){
+        if(letter==="a"){ //literally is set to exchange the letter
             exchange +=4;
         }
         else if(letter=== "e"){
@@ -131,26 +149,26 @@ function factorize(number){
         return[];
     }
     let list=[];
-    for(let i=1; i<=number; i++){
-        if(number%i ===0){
-            list.push(i);
+    for(let i=1; i<=number; i++){ //cycle that tries all numbers starting from 1
+        if(number%i ===0){ //in case it can divide without residue it will be a factor
+            list.push(i); //pushes
         }
     }
     return list;
 }
 
 //problem 8: eliminate duplicates in an array and gives back list without them
-function deduplicate(array){
+function deduplicate(array){ 
     let list=[];
     for(let i=0; i<array.length; i++){
         let single=array[i];
-        let duplicated=false;
+        let duplicated=false; //tries to avoid element that is not repeated yet if found will be marked
         for(let k=0; k<list.length; k++){
-            if(list[k]=== single){
+            if(list[k]=== single){ 
                 duplicated=true;
             }
         }
-        if(duplicated===false){
+        if(duplicated===false){ //will remove the repeated ones and only add the ones who are single
             list.push(single);
         }
     }
@@ -162,9 +180,9 @@ function findShortestString(array){
     if(array.length===0){
         return 0;
     }
-    let small=array[0].length;
+    let small=array[0].length; //will start with the fisrt lenght and will "eliminate" according if a smaller one is found
     for(let i=1; i<array.length; i++){
-        if(array[i].length<small){
+        if(array[i].length<small){ //will update the list in case it is smaller
             small=array[i].length;
         }
     }
@@ -175,17 +193,17 @@ function findShortestString(array){
 function isPalindrome(string){
     let final= "";
     let recorrido= string.length;
-    for (let i= recorrido-1; i>=0; i--){
-        final += string[i]
+    for (let i= recorrido-1; i>=0; i--){ //cycle that reverses the string
+        final += string[i] //will build the reversed string
     }          
-    if (final=== string){
+    if (final=== string){ //will compare to the original and check if it reads the same
         return true;
     }
     return false;
 }
 
 //probelma 11: take a list of texts and returns a new list with everything in alphabetical order
-function sortStrings(array){
+function sortStrings(array){ //will be comparing values in terms of alphabetical comparison and will exchange places according to the order
     let lista=[]
     for(let i=0; i<array.length; i++){
         lista.push(array[i]);
@@ -193,7 +211,7 @@ function sortStrings(array){
     let m=lista.length;
     for(let i=0; i<m; i++){
         for(let k=0; k<m-1; k++){
-            if(lista[k]>lista[k+1]){
+            if(lista[k]>lista[k+1]){ //works with the string in terms of alphabet
                 let final=lista[k];
                 lista[k]=lista[k+1];
                 lista[k+1]=final
@@ -211,19 +229,19 @@ function stats(array){
     let sum=0;
     let average=0;
     for(let i=0; i<array.length; i++){
-        sum=sum+array[i];
+        sum=sum+array[i]; //to obtain the value of average
         average=sum/array.length;
     }
     let mode = array[0];
-    let list={};
+    let list={}; //in order to count how many times a number appears
     for(let k=0; k<array.length; k++){
         if(list[array[k]]===undefined){
             list[array[k]]=1;
         }
         else{
-            list[array[k]]++;
+            list[array[k]]++; //counts the times it appears
         }
-        if(list[array[k]]>list[mode]){
+        if(list[array[k]]>list[mode]){ //will change according to what is most repeated
             mode=array[k];
         }
     }
@@ -241,10 +259,10 @@ function popularString(array){
         let list=0;
         for(let k=0; k<array.length; k++){
             if(array[i]===array[k]){
-                list++;
+                list++; //will count the repetition of a string
             }
         }
-        if(list>cantidad){
+        if(list>cantidad){ //cycle that checks we are keeping the most frequent
             cantidad=list;
             most=array[i];
         }
@@ -257,8 +275,8 @@ function isPowerOf2(numb){
     if(numb<=0){
         return false;
     }
-    for(let i=numb; i>1; i=i/2){
-        if(i%2===0){
+    for(let i=numb; i>1; i=i/2){ //cycle to check if we can divide the number by two 
+        if(i%2===0){ //discard the numbers that are not divisible by 2
         }
         else{
             return false;
@@ -276,7 +294,7 @@ function sortDescending(array){
     let m=list.length;
     for(let i=0; i<m; i++){
         for(let k=0; k<m-1;k++){
-            if(list[k]<list[k+1]){
+            if(list[k]<list[k+1]){ //will compare according to the order in reverse creating the descending order
                 let final=list[k];
                 list[k]=list[k+1];
                 list[k+1]=final;
