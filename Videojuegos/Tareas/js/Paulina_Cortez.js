@@ -253,9 +253,39 @@ function popularString(array){
 }
 
 //problem 14: take a number from list and retrun true if ist a power or fake if not
-function isPowerOf2(){
-    
+function isPowerOf2(numb){
+    if(numb<=0){
+        return false;
+    }
+    for(let i=numb; i>1; i=i/2){
+        if(i%2===0){
+        }
+        else{
+            return false;
+        }
+    }
+    return true;
 }
+
+//problem 15: list that will return a new list with all the numbers in descending order
+function sortDescending(array){
+    let list=[];
+    for(let i=0; i<array.length; i++){
+        list.push(array[i]);
+    }
+    let m=list.length;
+    for(let i=0; i<m; i++){
+        for(let k=0; k<m-1;k++){
+            if(list[k]<list[k+1]){
+                let final=list[k];
+                list[k]=list[k+1];
+                list[k+1]=final;
+            }
+        }
+    }
+    return list;
+}
+
 
 export {
     firstNonRepeating,
