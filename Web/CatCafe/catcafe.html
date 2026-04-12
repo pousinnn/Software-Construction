@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <link rel="stylesheet" href="index.css">
     <img src="https://64.media.tumblr.com/5e2b02046cca3054f04621f633602e0e/9e2fca3d59303192-35/s2048x3072/c4f6a09cc40cd36bc69149c4c71b67e281d2da3e.pnj"> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Popousin's CatCafe</title>
-
 </head>
 
-<body bgcolor="#fce3de" text="#8c3829"> 
-    <h1>Welcome to our Cat Cafe</h1>
+<body> 
+  <div>
+    <button onclick="english()">English</button>
+    <button onclick="español()">Español</button>
+    <button onclick="tagalog()">Tagalog</button>
+  </div>
+
+  <h1 id="title"> Welcome to our CatCafe</h1>
         <a href="https://www.youtube.com/watch?v=h9cb1P7oxGU">
         Watch a video of our cafe
     </a>
     <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/cc98e19d-628d-4fa6-aa0e-cc2c48ddabf1/dltorxm-9111b1ac-b650-4285-9693-c90391829233.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi9jYzk4ZTE5ZC02MjhkLTRmYTYtYWEwZS1jYzJjNDhkZGFiZjEvZGx0b3J4bS05MTExYjFhYy1iNjUwLTQyODUtOTY5My1jOTAzOTE4MjkyMzMucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.XzoD3BHTZD09MIMvpT7ErmNiAb-iCQkCVJzp2ZQ9oaw">
-    <p>
-        Welcome to a coffee shop where you can enjoy a sweet treat with the company of our different cats - enjoy your time playing and petting our little friends! <br> Step away from your busy agenda and enter our cozy sanctuary where our delicious desserts meet adorable cats. <br> Here, your afternoon treat comes with a side of whiskers, and our plush velvet chairs are open for you!
+    <p id="mainP">
+        Welcome to a coffee shop where you can enjoy a sweet treat with the company of our different cats - enjoy your time playing and petting our little friends! <br> Step away from your busy agenda and enter our cozy sanctuary where our delicious desserts meet adorable cats. <br> Here, your afternoon treat comes with a side of whiskers and our chairs are open for you!
     </p>
 
     <table>
@@ -32,13 +39,16 @@
   </tr>
 </table>
 
+<h2>Adopt a Cat!</h2>
+<img id="ourCats" src="https://64.media.tumblr.com/ae6113434831dece23834a4b99c7719b/e143b9bcb19f3111-96/s500x750/ea3d89d4fb376b6b35e40d9e3fbacc643b233ccd.pnj" width="500">
+<br><br>
+<button onclick="nextCat()">Next Cat</button>
 
-
-<p>
+<div id="info_vid">
+<p id="intro">
         Our cats are really funny and cute! Feel free to check our special promotions and enjoy your visit! <br> You are welcome to stay and have fun, you might even want to adopt a new friend! 
     </p>
-
-    <p>Check out these videos from our cat cafe:</p>
+    <p id="videos">Check out these videos from our cat cafe:</p>
 
     <a href="https://www.youtube.com/watch?v=bZiC44qt3tE">
         Watch a video of our yummy food!
@@ -47,6 +57,7 @@
     <a href="https://www.youtube.com/watch?v=B-dpzhWIqtk">
       Our seasonal cookies!
     </a>
-    
+    </div>
+    <script src="catcafe.js"></script>
 </body>
 </html>
