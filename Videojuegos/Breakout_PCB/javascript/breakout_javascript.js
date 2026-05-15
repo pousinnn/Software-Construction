@@ -12,8 +12,8 @@ const CanvasHeight = 600;
 
 //for time 
 let PreviousTime = 0;
-let BarSpeed = 0.80;
-let BallSpeed = 0.6;
+let BarSpeed = 500;
+let BallSpeed = 350;
 
 //Blocks
 class Blocks extends GameObject {
@@ -30,19 +30,23 @@ class Ball extends GameObject {
         this.velocity = new Vector(0, 0);
     }
     update (deltaTime){
-        this.speed=this.speed.normalize().times(BallSpeed);
-        this.position=this.position.plus(this.speed.times(deltaTime))
+        if (this.velocity.magnitude() > 0) {
+        this.velocity = this.velocity.normalize().times(BallSpeed);
     }
+    this.position = this.position.plus(
+        this.velocity.times(deltaTime)
+    );
+}
     reset(){
-        this.speed=new Vector(0,0)
-        this.position=new Vector(CanvasWidth/2, CanvasHeight/2)
+        this.velocity=new Vector(0,0)
+        this.position=new Vector(CanvasWidth/2, CanvasHeight/2 + 30)
     }
-    serve(){ //angles
-        let.angle=Math.random()*(Math.PI/2 - 0.5)+ 0.15;
-        this.speed.x= Math.cos(angle);
-        this.speed.y= Math.sin(angle);
-        if (Math.random() > 0.7){
-            this.speed.x=-1;
+    serve(){
+        let angle = Math.random() * (Math.PI / 2 - 0.5) + 0.15;
+        this.velocity.x= Math.cos(angle)*BallSpeed;
+        this.velocity.y= Math.sin(angle)*BallSpeed;
+        if (Math.random() > 0.5){
+            this.velocity.x*=-1;
         }
     }
 }
@@ -50,28 +54,29 @@ class Ball extends GameObject {
 class Paddle extends GameObject{
     constructor(position, width, height, color, sheetCols){
         super(position, width, height, color, "Paddle", sheetCols);
-        this.speed=new Vector(0, 0);
-        this.motion={
-            left: {
-            axis: "x",
-            sign: -1,
-        },
-        right:{
-            axis: "x",
-            sign: "1",
-        },
-    }
-    this.keys=[];
+        this.velocity=new Vector(0, 0);
+        this.motion = {
+    left: {
+        axis: "x",
+        sign: -1,
+    },
+    right: {
+        axis: "x",
+        sign: 1,
+    },
+};
+
+this.keys = [];
 }
 update(deltaTime){
-    this.speed.x=0;
-    this.speed.y=0;
+    this.velocity.x=0;
+    this.velocity.y=0;
     for (const direction of this.keys){
         const axis=this.motion[direction].axis;
         const sign=this.motion[direction].sign;
-        this.speed[axis]+=sign;
+        this.velocity[axis] += sign * BarSpeed;
     }
-    this.position=this.position.plus(this.speed.times(deltaTime));
+    this.position=this.position.plus(this.velocity.times(deltaTime));
     this.clampCanvas();
 }
 //For canvas
@@ -80,13 +85,13 @@ clampCanvas(){
         this.position.y=this.halfSize.y;
     }
     if(this.position.x - this.halfSize.x<0){
-        this.position.x = this.halfSize;
+        this.position.x = this.halfSize.x;
     }
-    if (this.position.y + this.halfSize.y > canvasHeight) {
-        this.position.y = canvasHeight - this.halfSize.y;
+    if (this.position.y + this.halfSize.y > CanvasHeight) {
+        this.position.y = CanvasHeight - this.halfSize.y;
     }
-    if (this.position.x + this.halfSize.x > canvasWidth) {
-        this.position.x = canvasWidth - this.halfSize.x;
+    if (this.position.x + this.halfSize.x > CanvasWidth) {
+        this.position.x = CanvasWidth - this.halfSize.x;
     }
 }
 }
@@ -95,76 +100,76 @@ class Game {
         this.createEventListeners();
         this.initObjects()
         this.ping = document.createElement("audio");
-        this.ping.src = "../assets/audio/4387__noisecollector__pongblipe4.wav";
+        this.ping.src = "../extras/BubblePop.mp3";
 
         this.music = document.createElement("audio");
-        this.music.src = "../assets/audio/679054_migfus20_relaxing-chiptune-music.mp3";
+        this.music.src = "../extras/HoldOnTight.mp3";
         this.music.loop = true;
 
         this.over = document.createElement("audio");
-        this.over.src = "../assets/audio/GameOver.wav";
+        this.over.src = "../extras/GameOver.mp3";
 
         this.win = document.createElement("audio");
-        this.win.src = "../assets/audio/round_end.wav";
+        this.win.src = "../extras/Victory.mp3";
 
-        // Variables to keep score of the game
         this.pointsBlocks = 0;
         this.lives = 3;
         this.isGameOver = false;
         this.isGameWon = false;
+        this.elapsedTime = 0;
+        this.finalTime = 0;
+        this.gameStarted=0
     }
 
-    // Creates blocks of different colors
     randomColor() {
-    const colors = ["#ffcce6", "#ccd9ff", "#ccfff2", "#ffffcc", "#ccffcc", "#d11e7b", "#5472cb"];
+    const colors = ["#849dbb", "#50698d", "#4e7ab1", "#7d9fc0", "#a7c7e7", "#ceb5d4", "#e8ecef"];
     return colors[Math.floor(Math.random() * colors.length)];
     }
 
     initObjects() {
-        // Add another object to draw a background
-        this.background = new GameObject(new Vector(canvasWidth / 2, canvasHeight / 2), canvasWidth, canvasHeight, "black");
-        // this.background.setSprite("../assets/sprites/trak2_plate2b.png");
+        this.background = new GameObject(new Vector(CanvasWidth / 2, CanvasHeight / 2), CanvasWidth, CanvasHeight, "black");
+        this.paddleDown = new Paddle(new Vector(CanvasWidth / 2, CanvasHeight - 50),
+                                 125, 15, "#F2e199");
+        this.ball = new Ball(new Vector(CanvasWidth/2, CanvasHeight/2 +30),
+                                60, 60, 
+                                "white"
+                            );
+                            this.ball.setSprite("../extras/alien.png")
+        this.barrierTop = new GameObject(new Vector(CanvasWidth / 2, 0), CanvasWidth, 0);
+        this.barrierLeft = new GameObject(
+            new Vector(0, CanvasHeight/2), 
+            10, 
+            CanvasWidth
+        );
+        this.barrierRight = new GameObject(
+            new Vector(CanvasWidth, CanvasHeight/2), 
+            10, 
+            CanvasWidth
+        );
 
-        this.paddleDown = new Paddle(new Vector(canvasWidth / 2, canvasHeight - 50),
-                                 125, 15, "pink");
-        //this.paddleLeft.setSprite("../assets/sprites/blordrough_quartermaster-NESW.png",
-                                //        x   y    w   h
-                                //new Rect(48, 128, 48, 64));
+        this.goalDown = new GameObject(new Vector(CanvasWidth / 2, CanvasHeight), CanvasWidth, 0);
 
-        this.ball = new Ball(new Vector(canvasWidth / 2, canvasHeight / 2),
-                                20, 20, "white");
+        this.pointsText = new TextLabel(20, 35, "15px 'Press Start 2P'", "white");
+        this.pointsTextBlocks = new TextLabel(275, 35, "18px 'Press Start 2P'", "white");
+        
+        this.timerText = new TextLabel(20, 70, "12px 'Press Start 2P'", "white");
 
-        this.barrierTop = new GameObject(new Vector(canvasWidth / 2, 0), canvasWidth, 0);
-        this.barrierTop.setSprite("../assets/sprites/RTS_Crate.png")
-        this.barrierLeft = new GameObject(new Vector(0, canvasHeight / 2), 0, canvasWidth);
-        this.barrierLeft.setSprite("../assets/sprites/RTS_Crate.png")
-        this.barrierRight = new GameObject(new Vector(canvasWidth, canvasHeight / 2), 0, canvasWidth);
-        this.barrierRight.setSprite("../assets/sprites/RTS_Crate.png")
+        this.livesText = new TextLabel(650, 35, "15px 'Press Start 2P'", "white");
+        this.livesTextBlocks = new TextLabel(750, 35, "18px 'Press Start 2P'", "white");
 
-        this.goalDown = new GameObject(new Vector(canvasWidth / 2, canvasHeight), canvasWidth, 0);
+        this.gameOver = new TextLabel(260, CanvasHeight / 2, "35px 'Press Start 2P'", "white");
 
-        // Labels to show the score of each player
-        this.pointsText = new TextLabel(20, 35, "25px Ubuntu Mono", "white");
-        this.pointsTextBlocks = new TextLabel(275, 35, "25px Ubuntu Mono", "white");
-
-        this.livesText = new TextLabel(650, 35, "25px Ubuntu Mono", "white");
-        this.livesTextBlocks = new TextLabel(750, 35, "25px Ubuntu Mono", "white");
-
-        this.gameOver = new TextLabel(100, canvasHeight / 2, "60px Ubuntu Mono", "white");
-
-        this.gameWon = new TextLabel(90, canvasHeight / 2, "60px Ubuntu Mono", "white");
+        this.gameWon = new TextLabel(260, CanvasHeight / 2, "35px 'Press Start 2P'", "white");
 
         
         this.blocks = [];
-
-        // Number of columns and rows of blocks
         let rows = 7;
         let cols = 9;
         let block_w = 78;
         let block_h = 20;
         let blockPadding = 10;
-        let blockOffsetTop = 60;
-        let blockOffsetLeft = 49;
+        let blockOffsetTop = 90;
+        let blockOffsetLeft = 70;
 
         for (let i = 0; i < cols; i++) {
             for (let j = 0; j < rows; j++) {
@@ -172,7 +177,7 @@ class Game {
             let block_x = i * (block_w + blockPadding) + blockOffsetLeft;
             let block_y = j * (block_h + blockPadding) + blockOffsetTop;
 
-            let block = new Block(new Vector(block_x, block_y), block_w, block_h, this.randomColor());
+            let block = new Blocks(new Vector(block_x, block_y), block_w, block_h, this.randomColor());
 
             this.blocks.push(block);
             }
@@ -182,25 +187,29 @@ class Game {
     }
 
     draw(ctx) {
-        // Draw the background first, so everything else is drawn on top
-        this.background.draw(ctx);
-
         this.paddleDown.draw(ctx);
-
         this.barrierTop.draw(ctx);
         this.barrierLeft.draw(ctx);
         this.barrierRight.draw(ctx);
 
         this.goalDown.draw(ctx);
 
-        this.pointsText.draw(ctx, "Destroyed blocks: ");
+        this.pointsText.draw(ctx, "Eliminated blocks:  ");
         this.pointsTextBlocks.draw(ctx, this.pointsBlocks);
 
+        let currentTime;
+        if (this.isGameWon) {
+            currentTime = this.finalTime.toFixed(1);
+        } else {
+            currentTime = this.elapsedTime.toFixed(1);
+        }
+        this.timerText.draw(ctx, "Time: " + currentTime + "s");
+        
         this.livesText.draw(ctx, "Lives: ");
         this.livesTextBlocks.draw(ctx, this.lives);
 
         if (this.isGameOver){
-            this.gameOver.draw(ctx, "G A M E   O V E R");
+            this.gameOver.draw(ctx, "Game Over");
         }
 
         for (let block of this.blocks){
@@ -211,52 +220,47 @@ class Game {
             this.ball.draw(ctx);
         }
 
-        if (this.pointsBlocks == 63){
+        if (this.pointsBlocks == 63 && !this.isGameWon){
             this.isGameWon = true;
-            this.gameWon.draw(ctx, "Y O U   W O N ! ! !");
+            this.finalTime = this.elapsedTime;
+            this.win.play();
         }
-    }
+        if (this.isGameWon) {
+            this.gameWon.draw(ctx, "You Win! ! !");
+            }
+        }
 
     update(deltaTime) {
-        // Move the paddleLeft
         this.paddleDown.update(deltaTime);
         this.ball.update(deltaTime);
-
+        if (this.gameStarted && !this.isGameOver && !this.isGameWon) {
+            this.elapsedTime += deltaTime;
+        }
         
-        // Make the ball disappear and stop the game
         if (this.isGameOver || this.isGameWon) {
         return;
         }
 
         if (boxOverlap(this.ball, this.barrierTop)) {
             this.ball.velocity.y *= -1;
-            // Make the ball faster with every contact
-            this.ball.velocity = this.ball.velocity.times(1.1);
-            // Play the sound
             this.ping.play();
         }
 
         if (boxOverlap(this.ball, this.barrierLeft) || boxOverlap(this.ball, this.barrierRight)) {
             this.ball.velocity.x *= -1;
-            // Make the ball faster with every contact
-            this.ball.velocity = this.ball.velocity.times(1.1);
-            // Play the sound
             this.ping.play();
         }
 
         if (boxOverlap(this.ball, this.paddleDown)) {
             this.ball.velocity.y *= -1;
-            // Make the ball faster with every contact
-            this.ball.velocity = this.ball.velocity.times(1.1);
-            // Play the sound
             this.ping.play();
         }
 
-        // Detect when a player scores a point
         if (boxOverlap(this.ball, this.goalDown)) {
             this.lives -= 1;
             if (this.lives > 0){
             this.ball.reset();
+            this.gameStarted = false;
             } else{
                 this.isGameOver = true;
                 this.lives = 0;
@@ -264,29 +268,24 @@ class Game {
             }
         }
 
-        // Extra: change of velocity
         for (let i = 0; i < this.blocks.length; i++) {
             if (boxOverlap(this.ball, this.blocks[i])) {
                 this.ball.velocity.y *= -1;
 
-                if (this.blocks[i].color === "#5472cb") {
-                    ballSpeed *= 0.8;
+                if (this.blocks[i].color === "#ceb5d4") {
+                    BallSpeed *= 0.8;
                 } 
-                else if (this.blocks[i].color === "#d11e7b") {
-                    ballSpeed *= 1.1;
+                else if (this.blocks[i].color === "#e8ecef") {
+                    BallSpeed *= 1.1;
                 } 
-
                 this.blocks[i].destroy = true;
                 this.pointsBlocks += 1;
-                // Make the ball faster with every contact
                 this.ball.velocity = this.ball.velocity.times(1.1);
-                // Play the sound
                 this.ping.play();
                 break;
             }
         }
 
-        // Destroy block
         this.blocks = this.blocks.filter(block => !block.destroy);
 
     }
@@ -300,8 +299,10 @@ class Game {
                 this.addKey('right', this.paddleDown);
             }
 
-            // Add a key for the initial serve of the ball
             if (event.code == 'Space') {
+                if(!this.gameStarted){
+                    this.gameStarted = true;
+                }
                 this.ball.serve();
                 this.music.play();
             }
@@ -331,35 +332,21 @@ class Game {
 }
 
 
-// Starting function that will be called from the HTML page
 function main() {
-    // Get a reference to the object with id 'canvas' in the page
     const canvas = document.getElementById('canvas');
-    // Resize the element
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    // Get the context for drawing in 2D
+    canvas.width = CanvasWidth;
+    canvas.height = CanvasHeight;
     ctx = canvas.getContext('2d');
-
-    // Create the game object
     game = new Game();
-
     drawScene(0);
 }
 
 
-// Main loop function to be called once per frame
 function drawScene(newTime) {
-    // Compute the time elapsed since the last frame, in milliseconds
-    let deltaTime = newTime - oldTime;
-
-    // Clean the canvas so we can draw everything again
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
+    let deltaTime = (newTime - PreviousTime)/1000;
+    ctx.clearRect(0, 0, CanvasWidth, CanvasHeight);
     game.update(deltaTime);
-
     game.draw(ctx);
-
-    oldTime = newTime;
+    PreviousTime = newTime;
     requestAnimationFrame(drawScene);
 }
