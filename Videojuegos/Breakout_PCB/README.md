@@ -10,12 +10,23 @@ Download the folder ‘[Breakout_PCB](https://github.com/pousinnn/Software-Const
 ![alt text](<Captura de pantalla 2026-05-15 232459.png>)
 
 ## Game explanation
-The game 'Breakout' will consist in a bar (paddle) that is being controlled by the user. In this case, the paddle will help to avoid dropping the alien, who plays the role of a ball that has to destroy all the blocks at the top of the screen by hitting them individually. For this game, the player has three lives that will help them to survive for three levels, and gain their points by the amount of blocks eliminated.
+The game 'Breakout' will consist in a bar (paddle) that is being controlled by the user. In this case, the paddle will help to avoid dropping the alien, who plays the role of a ball that has to destroy all the blocks at the top of the screen by hitting them individually. For this game, the player has three lives that will help them to survive for three levels, and gain their points by the amount of blocks eliminated. The final goal is to surpass the three levels in the smallest time possible.
 
-## Controls for the game:
+## Controls for the user:
 The game works through three keys from their computer's keyboard:
 - Left & right key: Will be able to move the paddle in their respective directions. 
 - Space bar: Will help to launch the alien to move throughout the screen and hit the blocks.
+
+## Rules for the gameplay:
+- The gameplay will start after selecting the *space key*, meaning that alien will start moving in a random direction when selected.
+- When the alien hits a block, it will be destroyed and will make the points counter increase.
+- The alien is also capable of hitting the paddle, the vertical borders and the top border. This will make him bounce but no point will be gained from that.
+- The **only** way of **losing a life** in the game is by allowing the alien to fall and touch the bottom border. 
+- The **only** way of **losing the game** is by losing the three lives.
+- The **only** way of **winning the game** is by eliminating all the blocks throughout the three levels.
+- There are two possible outputs for the ending screen:
+    - "You Win!" for the winning screen
+    - "Game Over" for the losing screen
 
 ## Important notes:
 - For this game, the special additions that were added include:
