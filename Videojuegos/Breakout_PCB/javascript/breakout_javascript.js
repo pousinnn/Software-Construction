@@ -100,35 +100,58 @@ class Game {
         this.createEventListeners();
         this.initObjects()
         this.ping = document.createElement("audio");
-        this.ping.src = "../extras/BubblePop.mp3";
+        this.ping.src = "../extras/BubblePop.m4a";
 
         this.music = document.createElement("audio");
         this.music.src = "../extras/HoldOnTight.mp3";
         this.music.loop = true;
-
         this.over = document.createElement("audio");
         this.over.src = "../extras/GameOver.mp3";
-
         this.win = document.createElement("audio");
         this.win.src = "../extras/Victory.mp3";
 
         this.pointsBlocks = 0;
         this.lives = 3;
+        this.level = 1;
+        this.maxLevels = 3;
         this.isGameOver = false;
         this.isGameWon = false;
         this.elapsedTime = 0;
         this.finalTime = 0;
-        this.gameStarted=0
+        this.gameStarted=false
     }
 
     randomColor() {
-    const colors = ["#849dbb", "#50698d", "#4e7ab1", "#7d9fc0", "#a7c7e7", "#ceb5d4", "#e8ecef"];
-    return colors[Math.floor(Math.random() * colors.length)];
+    const colors = ["#849dbb", "#50698d", "#4e7ab1", "#7d9fc0", "#a7c7e7", "#ceb5d4", "#e8ecef", "#e8ecef"];
+    return colors[Math.floor(Math.random()*colors.length)];
     }
+
+    createBlocks(){
+        this.blocks = [];
+        let rows = 7;
+        let cols = 9;
+        let block_w = 78;
+        let block_h = 20;
+        let blockPadding = 10;
+        let blockOffsetTop = 100;
+        let blockOffsetLeft = 70;
+        for (let i = 0; i < cols; i++) {
+            for (let j = 0; j < rows; j++) {
+                let block_x = i * (block_w + blockPadding) + blockOffsetLeft;
+                let block_y = j * (block_h + blockPadding) + blockOffsetTop;
+                let block = new Blocks(
+                    new Vector(block_x, block_y),
+                    block_w,
+                    block_h,
+                    this.randomColor());
+                    this.blocks.push(block);
+                }
+            }
+        }
 
     initObjects() {
         this.background = new GameObject(new Vector(CanvasWidth / 2, CanvasHeight / 2), CanvasWidth, CanvasHeight, "black");
-        this.paddleDown = new Paddle(new Vector(CanvasWidth / 2, CanvasHeight - 50),
+        this.paddleDown = new Paddle(new Vector(CanvasWidth/2, CanvasHeight - 50),
                                  125, 15, "#F2e199");
         this.ball = new Ball(new Vector(CanvasWidth/2, CanvasHeight/2 +30),
                                 60, 60, 
@@ -150,40 +173,19 @@ class Game {
         this.goalDown = new GameObject(new Vector(CanvasWidth / 2, CanvasHeight), CanvasWidth, 0);
 
         this.pointsText = new TextLabel(20, 35, "15px 'Press Start 2P'", "white");
-        this.pointsTextBlocks = new TextLabel(275, 35, "18px 'Press Start 2P'", "white");
+        this.pointsTextBlocks = new TextLabel(295, 35, "15px 'Press Start 2P'", "white");
         
-        this.timerText = new TextLabel(20, 70, "12px 'Press Start 2P'", "white");
+        this.timerText = new TextLabel(20, 70, "15 px 'Press Start 2P'", "white");
+        this.levelText = new TextLabel(700, 70, "15px 'Press Start 2P'", "white");
 
-        this.livesText = new TextLabel(650, 35, "15px 'Press Start 2P'", "white");
-        this.livesTextBlocks = new TextLabel(750, 35, "18px 'Press Start 2P'", "white");
+        this.livesText = new TextLabel(700, 35, "15px 'Press Start 2P'", "white");
+        this.livesTextBlocks = new TextLabel(800, 35, "15px 'Press Start 2P'", "white");
 
-        this.gameOver = new TextLabel(260, CanvasHeight / 2, "35px 'Press Start 2P'", "white");
+        this.gameOver = new TextLabel(260, CanvasHeight/2, "35px 'Press Start 2P'", "white");
 
-        this.gameWon = new TextLabel(260, CanvasHeight / 2, "35px 'Press Start 2P'", "white");
+        this.gameWon = new TextLabel(260, CanvasHeight/2, "35px 'Press Start 2P'", "white");
 
-        
-        this.blocks = [];
-        let rows = 7;
-        let cols = 9;
-        let block_w = 78;
-        let block_h = 20;
-        let blockPadding = 10;
-        let blockOffsetTop = 90;
-        let blockOffsetLeft = 70;
-
-        for (let i = 0; i < cols; i++) {
-            for (let j = 0; j < rows; j++) {
-
-            let block_x = i * (block_w + blockPadding) + blockOffsetLeft;
-            let block_y = j * (block_h + blockPadding) + blockOffsetTop;
-
-            let block = new Blocks(new Vector(block_x, block_y), block_w, block_h, this.randomColor());
-
-            this.blocks.push(block);
-            }
-
-        }
-
+        this.createBlocks();
     }
 
     draw(ctx) {
@@ -204,31 +206,26 @@ class Game {
             currentTime = this.elapsedTime.toFixed(1);
         }
         this.timerText.draw(ctx, "Time: " + currentTime + "s");
+        this.levelText.draw(ctx, "Level: " + this.level);
         
         this.livesText.draw(ctx, "Lives: ");
         this.livesTextBlocks.draw(ctx, this.lives);
 
-        if (this.isGameOver){
-            this.gameOver.draw(ctx, "Game Over");
-        }
-
         for (let block of this.blocks){
             block.draw(ctx);
+        }
+        if (this.isGameOver){
+            this.gameOver.draw(ctx, "Game Over");
         }
 
         if (!this.isGameOver) {
             this.ball.draw(ctx);
         }
 
-        if (this.pointsBlocks == 63 && !this.isGameWon){
-            this.isGameWon = true;
-            this.finalTime = this.elapsedTime;
-            this.win.play();
-        }
         if (this.isGameWon) {
-            this.gameWon.draw(ctx, "You Win! ! !");
-            }
+            this.gameWon.draw(ctx, "You Win!");
         }
+    }
 
     update(deltaTime) {
         this.paddleDown.update(deltaTime);
@@ -248,11 +245,13 @@ class Game {
 
         if (boxOverlap(this.ball, this.barrierLeft) || boxOverlap(this.ball, this.barrierRight)) {
             this.ball.velocity.x *= -1;
+            this.ball.position.x += this.ball.velocity.x * 0.04;
             this.ping.play();
         }
 
         if (boxOverlap(this.ball, this.paddleDown)) {
-            this.ball.velocity.y *= -1;
+            this.ball.position.y = (this.paddleDown.position.y - this.paddleDown.halfSize.y - this.ball.halfSize.y - 1);
+            this.ball.velocity.y = -Math.abs(this.ball.velocity.y);
             this.ping.play();
         }
 
@@ -273,22 +272,32 @@ class Game {
                 this.ball.velocity.y *= -1;
 
                 if (this.blocks[i].color === "#ceb5d4") {
-                    BallSpeed *= 0.8;
+                    BallSpeed *= 0.9;
                 } 
                 else if (this.blocks[i].color === "#e8ecef") {
-                    BallSpeed *= 1.1;
+                    BallSpeed *= 1.3;
                 } 
                 this.blocks[i].destroy = true;
                 this.pointsBlocks += 1;
-                this.ball.velocity = this.ball.velocity.times(1.1);
                 this.ping.play();
                 break;
             }
         }
 
         this.blocks = this.blocks.filter(block => !block.destroy);
-
-    }
+        
+        if (this.blocks.length == 0) {
+            if (this.level < this.maxLevels) {
+                this.level++;
+                this.createBlocks();
+                this.ball.reset();} 
+                else{
+                    this.isGameWon = true;
+                    this.finalTime = this.elapsedTime;
+                    this.win.play();
+                }
+            }
+        }
 
     
     createEventListeners() {
@@ -303,9 +312,9 @@ class Game {
                 if(!this.gameStarted){
                     this.gameStarted = true;
                 }
-                this.ball.serve();
-                this.music.play();
-            }
+                    this.ball.serve();
+                    this.music.play();
+                }
         });
 
         window.addEventListener('keyup', (event) => {
