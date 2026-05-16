@@ -2,10 +2,11 @@
 
 Paulina Cortez Balvanera | A01782041
 
-May 15, 2026
+*May 15, 2026*
 
 ## Starting the game:   
-Download the folder ‘[Breakout_PCB](https://github.com/pousinnn/Software-Construction/tree/main/Videojuegos/Breakout_PCB)’, when downloaded, search for the folder *'html'* and inside there should be a file named *'html_breakout.html'*. When found, select it and open it in a browser of your preference. The screen should look like this:
+Download the folder ‘[Breakout_PCB](https://github.com/pousinnn/Software-Construction/tree/main/Videojuegos/Breakout_PCB)’, which includes the folders *'css', 'extras', 'javascript' and 'html'*. 
+When downloaded, search for the folder *'html'* and inside there should be a file named *'html_breakout.html'*. When found, select it and open it in a browser of your preference. The screen should look like this:
 
 ![alt text](<Captura de pantalla 2026-05-15 232459.png>)
 
