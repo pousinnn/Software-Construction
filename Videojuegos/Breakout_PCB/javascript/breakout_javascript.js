@@ -171,7 +171,7 @@ class Game { //game starting class
 
         //all text labels
         this.pointsText = new TextLabel(20, 35, "15px 'Press Start 2P'", "white");
-        this.pointsTextBlocks = new TextLabel(295, 35, "15px 'Press Start 2P'", "white");
+        this.pointsTextBlocks = new TextLabel(235, 35, "15px 'Press Start 2P'", "white");
         
         this.timerText = new TextLabel(20, 70, "15 px 'Press Start 2P'", "white");
         this.levelText = new TextLabel(700, 70, "15px 'Press Start 2P'", "white");
@@ -193,7 +193,7 @@ class Game { //game starting class
 
         this.goalDown.draw(ctx);
 
-        this.pointsText.draw(ctx, "Eliminated blocks:  ");
+        this.pointsText.draw(ctx, "Gained points:  ");
         this.pointsTextBlocks.draw(ctx, this.pointsBlocks);
 
         let currentTime;
@@ -272,7 +272,7 @@ class Game { //game starting class
                     BallSpeed *= 0.9;
                 } 
                 else if (this.blocks[i].color === "#e8ecef") {
-                    BallSpeed *= 1.15;
+                    BallSpeed *= 1.2;
                 } 
                 this.blocks[i].destroy = true;
                 this.pointsBlocks += 1;
