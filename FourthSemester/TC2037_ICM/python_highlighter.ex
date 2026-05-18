@@ -5,6 +5,7 @@
 
 defmodule PythonHighlighter do
 
+  #my reserved words
   @keywords ["False", "None", "True", "case", "as", "assert",
              "async", "and", "await", "break", "class", "continue",
              "def", "del", "elif", "else", "except", "finally",
@@ -12,6 +13,7 @@ defmodule PythonHighlighter do
              "is", "lambda", "nonlocal", "not", "or", "pass",
              "raise", "return", "try", "while", "with", "match", "yield"]
 
+  #my dfa and transition table for each categpry
   @tabla [
     [0, 8, 9, 9, 10, 11, 11, 12, 1, 1, 2, 6, 19, 0, 11, 19],
     [1, 1, 1, 1, 1, 1, 1, 1, 13, 13, 1, 1, 1, 1, 1, 19],
@@ -28,7 +30,7 @@ defmodule PythonHighlighter do
     [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19]
   ]
 
-  # Obtiene el siguiente estado de la tabla
+  #cycle for checking the state according to previous state and character
   def obtener_estado(estado, col) do
     if estado < 13 do
       fila = Enum.at(@tabla, estado)
@@ -38,13 +40,14 @@ defmodule PythonHighlighter do
     end
   end
 
-
+  #maps according to the corresponding part at the dfa table
   def clasificar(c, estado) do
   letras = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
   digitos = String.graphemes("0123456789")
   operadores = String.graphemes("+-*/%=<>!&|^")
   delimitadores = String.graphemes(":()[]{},;")
   exponente = String.graphemes("eE")
+
 
   cond do
     c == " " or c == "\t" -> 0
@@ -63,6 +66,7 @@ defmodule PythonHighlighter do
     true -> 15
   end
 end
+#assigns the html tag depending on the acceptance state
   def a_html(estado, lexema) do
     cond do
       estado == 13 ->
@@ -90,8 +94,8 @@ end
     end
   end
 
-
-  def procesar_chars([], estado, lexema, html_acc) do
+#base case
+  def process_chars([], estado, lexema, html_acc) do
     if lexema != "" do
       if estado == 10 do
         html_acc <> "<span class=\"comment\">" <> lexema <> "</span>"
@@ -103,39 +107,42 @@ end
     end
   end
 
-  def procesar_chars([c | resto], estado, lexema, html_acc) do
+  #recursive for processing one character at the moment
+  def process_chars([c | resto], estado, lexema, html_acc) do
     col = clasificar(c, estado)
     new_estado = obtener_estado(estado, col)
 
-    cond do
+    cond do #we use a cond to detetrmine if the state was reached and reworks with the character
       new_estado >= 13 ->
         html_token = a_html(new_estado, lexema)
-        procesar_chars([c | resto], 0, "", html_acc <> html_token)
+        process_chars([c | resto], 0, "", html_acc <> html_token)
         new_estado == 0 ->
-            procesar_chars(resto, 0, "", html_acc <> c)
-        true ->
-            procesar_chars(resto, new_estado, lexema <> c, html_acc)
+            process_chars(resto, 0, "", html_acc <> c)
+        true -> #stays accumulatin
+            process_chars(resto, new_estado, lexema <> c, html_acc)
         end
     end
 
-  # Procesa cada línea del archivo
-  def procesar_lineas([], html_acc) do
+  # process every single line
+  def process_lin([], html_acc) do
     html_acc
   end
 
-  def procesar_lineas([linea | resto], html_acc) do
+  #recursive to process one line at the time
+  def process_lin([linea | resto], html_acc) do
     chars = String.graphemes(linea <> " ")
-    html_linea = procesar_chars(chars, 0, "", "")
-    procesar_lineas(resto, html_acc <> html_linea <> "\n")
+    html_linea = process_chars(chars, 0, "", "")
+    process_lin(resto, html_acc <> html_linea <> "\n")
   end
 
-  # Función principal
+  # main wil read and process to output to wite the html
   def lexer_categorias(archivo) do
   lineas = File.stream!(archivo)
     |> Enum.map(fn linea -> String.trim(linea) end)
 
-  html = procesar_lineas(lineas, "")
+  html = process_lin(lineas, "")
 
+  #we create the html file and insert it into a new one
   web = File.read!("display.html")
   html_final = String.replace(web, "{{result}}", html)
   File.write!("resultado.html", html_final)

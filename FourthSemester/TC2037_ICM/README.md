@@ -49,8 +49,11 @@ When this process is concluded, the file “resultado.html” will be updated. W
 ![alt text](image-2.png)
 
 **IV. Relevant sources**  
-Paginas para entender python:  
-[https://www.w3schools.com/python/python\_ref\_keywords.asp](https://www.w3schools.com/python/python_ref_keywords.asp)
+Understanding python:  
+[python](https://www.w3schools.com/python/python_ref_keywords.asp)
+
+Display in html in elixir:  
+[display html](https://stackoverflow.com/questions/39722225/how-to-display-text-in-a-span-tag-based-on-the-value-of-input-field)
 
 **V. Ethical Reflection**
 I think that this project allowed me to understand that programming simple tools is more complex than I would've thought. The whole project felt quite overwhelming due to the need to understand how the different tokens work and how they impact the language as a whole. But at the end it makes sense how their existance makes programming more friendly, since this made me think a lot about how  much we don't think the programming langauges in more technical terms and we just take them for granted. 
