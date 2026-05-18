@@ -1,0 +1,51 @@
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <pre>
+        <span class="comment"># Sistemas de ecuaciones simples </span>
+ 
+<span class="keyword">def</span> <span class="identifier">resolver_2x2</span><span class="delimiter">(</span><span class="identifier">a1</span><span class="delimiter">,</span> <span class="identifier">b1</span><span class="delimiter">,</span> <span class="identifier">c1</span><span class="delimiter">,</span> <span class="identifier">a2</span><span class="delimiter">,</span> <span class="identifier">b2</span><span class="delimiter">,</span> <span class="identifier">c2</span><span class="delimiter">)</span><span class="delimiter">:</span> 
+<span class="comment"># regla de cramer </span>
+<span class="identifier">det</span> <span class="operator">=</span> <span class="identifier">a1</span> <span class="operator">*</span> <span class="identifier">b2</span> <span class="operator">- </span><span class="identifier">a2</span> <span class="operator">*</span> <span class="identifier">b1</span> 
+<span class="keyword">if</span> <span class="identifier">det</span> <span class="operator">==</span> <span class="number">0</span><span class="delimiter">:</span> 
+<span class="keyword">return</span> <span class="keyword">False</span> 
+<span class="identifier">x</span> <span class="operator">=</span> <span class="delimiter">(</span><span class="identifier">c1</span> <span class="operator">*</span> <span class="identifier">b2</span> <span class="operator">- </span><span class="identifier">c2</span> <span class="operator">*</span> <span class="identifier">b1</span><span class="delimiter">)</span> <span class="operator">/</span> <span class="identifier">det</span> 
+<span class="identifier">y</span> <span class="operator">=</span> <span class="delimiter">(</span><span class="identifier">a1</span> <span class="operator">*</span> <span class="identifier">c2</span> <span class="operator">- </span><span class="identifier">a2</span> <span class="operator">*</span> <span class="identifier">c1</span><span class="delimiter">)</span> <span class="operator">/</span> <span class="identifier">det</span> 
+<span class="keyword">return</span> <span class="identifier">x</span><span class="delimiter">,</span> <span class="identifier">y</span> 
+ 
+<span class="keyword">def</span> <span class="identifier">resolver_cuadratica</span><span class="delimiter">(</span><span class="identifier">a</span><span class="delimiter">,</span> <span class="identifier">b</span><span class="delimiter">,</span> <span class="identifier">c</span><span class="delimiter">)</span><span class="delimiter">:</span> 
+<span class="comment"># formula general </span>
+<span class="identifier">discriminante</span> <span class="operator">=</span> <span class="identifier">b</span> <span class="operator">*</span> <span class="identifier">b</span> <span class="operator">- </span><span class="number">4</span> <span class="operator">*</span> <span class="identifier">a</span> <span class="operator">*</span> <span class="identifier">c</span> 
+<span class="keyword">if</span> <span class="identifier">discriminante</span> <span class="operator"><</span> <span class="number">0</span><span class="delimiter">:</span> 
+<span class="keyword">return</span> <span class="keyword">False</span> 
+<span class="identifier">raiz</span> <span class="operator">=</span> <span class="identifier">discriminante</span> <span class="operator">*</span> <span class="number">0.5</span> 
+<span class="identifier">x1</span> <span class="operator">=</span> <span class="delimiter">(</span><span class="identifier">b</span> <span class="operator">*</span> <span class="number">-1</span> <span class="operator">+</span> <span class="identifier">raiz</span><span class="delimiter">)</span> <span class="operator">/</span> <span class="delimiter">(</span><span class="number">2</span> <span class="operator">*</span> <span class="identifier">a</span><span class="delimiter">)</span> 
+<span class="identifier">x2</span> <span class="operator">=</span> <span class="delimiter">(</span><span class="identifier">b</span> <span class="operator">*</span> <span class="number">-1</span> <span class="operator">- </span><span class="identifier">raiz</span><span class="delimiter">)</span> <span class="operator">/</span> <span class="delimiter">(</span><span class="number">2</span> <span class="operator">*</span> <span class="identifier">a</span><span class="delimiter">)</span> 
+<span class="keyword">return</span> <span class="identifier">x1</span><span class="delimiter">,</span> <span class="identifier">x2</span> 
+ 
+<span class="comment"># sistema 1 </span>
+<span class="identifier">x</span><span class="delimiter">,</span> <span class="identifier">y</span> <span class="operator">=</span> <span class="identifier">resolver_2x2</span><span class="delimiter">(</span><span class="number">2</span><span class="delimiter">,</span> <span class="number">3</span><span class="delimiter">,</span> <span class="number">3</span><span class="delimiter">,</span> <span class="number">5</span><span class="delimiter">,</span> <span class="number">7</span><span class="delimiter">,</span> <span class="number">-4</span><span class="delimiter">)</span> 
+ 
+<span class="comment"># sistema 2 </span>
+<span class="identifier">x1</span><span class="delimiter">,</span> <span class="identifier">x2</span> <span class="operator">=</span> <span class="identifier">resolver_cuadratica</span><span class="delimiter">(</span><span class="number">1</span><span class="delimiter">,</span> <span class="number">-5</span><span class="delimiter">,</span> <span class="number">6</span><span class="delimiter">)</span> 
+ 
+<span class="comment"># operaciones extra </span>
+<span class="identifier">pi</span> <span class="operator">=</span> <span class="number">3.14159</span> 
+<span class="identifier">radio</span> <span class="operator">=</span> <span class="number">5</span> 
+<span class="identifier">area</span> <span class="operator">=</span> <span class="identifier">pi</span> <span class="operator">*</span> <span class="identifier">radio</span> <span class="operator">*</span> <span class="identifier">radio</span> 
+<span class="identifier">perimetro</span> <span class="operator">=</span> <span class="number">2</span> <span class="operator">*</span> <span class="identifier">pi</span> <span class="operator">*</span> <span class="identifier">radio</span> 
+ 
+<span class="comment"># lista de valores </span>
+<span class="identifier">valores</span> <span class="operator">=</span> <span class="delimiter">[</span><span class="number">1</span><span class="delimiter">,</span> <span class="number">2</span><span class="delimiter">,</span> <span class="number">3</span><span class="delimiter">,</span> <span class="number">4</span><span class="delimiter">,</span> <span class="number">5</span><span class="delimiter">]</span> 
+<span class="identifier">resultados</span> <span class="operator">=</span> <span class="delimiter">[</span><span class="number">0</span><span class="delimiter">,</span> <span class="number">0</span><span class="delimiter">,</span> <span class="number">0</span><span class="delimiter">,</span> <span class="number">0</span><span class="delimiter">,</span> <span class="number">0</span><span class="delimiter">]</span> 
+ 
+<span class="keyword">for</span> <span class="identifier">i</span> <span class="keyword">in</span> <span class="identifier">valores</span><span class="delimiter">:</span> 
+<span class="identifier">r</span> <span class="operator">=</span> <span class="identifier">i</span> <span class="operator">*</span> <span class="identifier">i</span> <span class="operator">- </span><span class="number">3</span> <span class="operator">*</span> <span class="identifier">i</span> <span class="operator">+</span> <span class="number">2</span> 
+<span class="identifier">total</span> <span class="operator">=</span> <span class="identifier">r</span> <span class="operator">+</span> <span class="identifier">area</span> 
+
+    </pre>
+</body>
+</html>

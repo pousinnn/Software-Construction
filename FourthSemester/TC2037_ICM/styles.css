@@ -1,0 +1,35 @@
+body {
+    background-color: #452e27;
+    color: white;
+    font-family: monospace;
+    padding: 20px;
+}
+
+.keyword {
+    color: #EFD780;
+}
+
+.number {
+    color: #c8ce72;
+}
+
+.operator {
+    color: #bdd8f1;
+}
+
+.comment {
+    color: #ffd1db;
+}
+
+.identifier {
+    color: #ac96c5;
+}
+
+.delimiter {
+    color: #f38081;
+}
+
+.error {
+    color: rgb(123, 93, 80);
+    font-weight: bold;
+}
