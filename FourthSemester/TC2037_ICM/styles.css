@@ -1,5 +1,5 @@
 body {
-    background-color: #452e27;
+    background-color: #382014;
     color: white;
     font-family: monospace;
     padding: 20px;
@@ -10,26 +10,34 @@ body {
 }
 
 .number {
-    color: #c8ce72;
+    color: #dce46b;
 }
 
-.operator {
-    color: #bdd8f1;
+.function {
+    color: #a1e8fa;
 }
 
 .comment {
-    color: #ffd1db;
+    color: #ffa6b9;
 }
 
 .identifier {
-    color: #ac96c5;
+    color: #f0a37a;
 }
 
 .delimiter {
-    color: #f38081;
+    color: #e76c6e;
+}
+
+.string {
+    color: #cec6ff;
+}
+
+.operator {
+    color: #88d6bb;
 }
 
 .error {
-    color: rgb(123, 93, 80);
+    color: rgb(181, 151, 136);
     font-weight: bold;
 }

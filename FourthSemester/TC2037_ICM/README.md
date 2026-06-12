@@ -30,11 +30,12 @@ The following folder contains 6 important files:
 - Lastly
 
 Now that we have all the files identified, we should download the whole folder, after completing this process, we should move into the ubuntu-terminal. When we are placed in the correct folder inside the terminal, we should add the command:   
+- iex python\_highlighter_old.ex
 - iex python\_highlighter.ex
 
 Inside this command, we will open either one of the python codes that will help us show the highlighter:  
-- PythonHighlighter.lexer\_categorias("[prueba.py](http://prueba.py)")  
-- PythonHighlighter.lexer\_categorias("[intento.py](http://intento.py)")
+- PythonHighlighter.lexer\_categ("[prueba.py](http://prueba.py)")  
+- PythonHighlighter.lexer\_categ("[intento.py](http://intento.py)")
 
 When this process is concluded, the file “resultado.html” will be updated. When updated, select it and feel free to open it in the browser of your choice. It should display something similar to this:
 
