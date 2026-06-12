@@ -5,6 +5,7 @@
 
 defmodule PythonHighlighter do
 
+  #my reserved words
   @keywords ["False", "None", "True", "case", "as", "assert",
              "async", "and", "await", "break", "class", "continue",
              "def", "del", "elif", "else", "except", "finally",
@@ -12,6 +13,8 @@ defmodule PythonHighlighter do
              "is", "lambda", "nonlocal", "not", "or", "pass",
              "raise", "return", "try", "while", "with", "match", "yield"]
 
+  #my dfa and transition table for each categpry
+  # each row will represent a state and the column a type of character
   @tabla [
     [0, 8, 9, 9, 10, 11, 11, 12, 1, 1, 2, 6, 19, 0, 11, 19],
     [1, 1, 1, 1, 1, 1, 1, 1, 13, 13, 1, 1, 1, 1, 1, 19],
@@ -28,6 +31,7 @@ defmodule PythonHighlighter do
     [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 19]
   ]
 
+  #cycle for checking the state according to previous state and character
   def obtain_state(state, col) do
     if state < 13 do
       row = Enum.at(@tabla, state)
@@ -37,6 +41,7 @@ defmodule PythonHighlighter do
     end
   end
 
+  #maps according to the corresponding part at the dfa table
   def classify(char, state) do
     letters = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
     digits = String.graphemes("0123456789")
@@ -44,6 +49,7 @@ defmodule PythonHighlighter do
     delimiters = String.graphemes(":()[]{},;.")
     exponent = String.graphemes("eE")
 
+    #all valid characters (dfa) and how they connect to the dfa table
     cond do
       state == 1 and char == "\"" -> 8
       state == 1 and char == "'"  -> 9
@@ -64,8 +70,10 @@ defmodule PythonHighlighter do
     end
   end
 
+  #determine if we will return the next character
   defp next_char([char | _]), do: char
 
+  #assigns the html tag depending on the acceptance state
   def to_html(state, lexer, next \\ "") do
     cond do
       state == 13 ->
@@ -92,8 +100,7 @@ defmodule PythonHighlighter do
     end
   end
 
-
-
+  #recursive for processing one character at the moment
   def process_characters([], state, lexer, html_accum) do
     if lexer != "" do
       if state == 10 do
@@ -107,9 +114,10 @@ defmodule PythonHighlighter do
   end
 
   def process_characters([char | rest], state, lexer, html_accum) do
+    #determine the next state
     col = classify(char, state)
     new_state = obtain_state(state, col)
-      cond do
+      cond do #we use a cond to detetrmine if the state was reached and reworks with the character
         new_state >= 13 ->
           if lexer != "" do
             if state == 1 do
@@ -136,10 +144,12 @@ defmodule PythonHighlighter do
       end
     end
 
+  #for the multiline and 3 quotes strings
   defp read_multiline_triple([], _quote, accum) do
     {"<span class=\"string\">" <> accum <> "</span>", []}
   end
 
+  #until the closing is encountered
   defp read_multiline_triple([line | rest], quote, accum) do
     close = quote <> quote <> quote
     if String.contains?(line, close) do
@@ -152,9 +162,10 @@ defmodule PythonHighlighter do
     end
   end
 
+  #process the file line by line and detect multlines
   def process_lin([], html_accum), do: html_accum
   def process_lin([line | rest], html_accum) do
-    cond do
+    cond do #check again
       String.contains?(line, "\"\"\"") ->
         [before, after_open] = String.split(line, "\"\"\"", parts: 2)
         before_html = if before != "" do
@@ -185,13 +196,14 @@ defmodule PythonHighlighter do
     end
   end
 
+  #read the python fle and apply the highlighter values
   def process_file(input_path, output_path) do
     lines = input_path
       |> File.stream!()
       |> Enum.map(fn line -> String.replace(line, "\n", "") end)
 
     html = process_lin(lines, "")
-    web = File.read!("display.html")
+    web = File.read!("display.html") #generate html files (x10)
     html_final = String.replace(web, "{{result}}", html)
     File.write!(output_path, html_final)
   end
@@ -203,6 +215,7 @@ defmodule PythonHighlighter do
       |> File.ls!()
       |> Enum.filter(fn f -> String.ends_with?(f, ".py") end)
 
+    #waiting for tasks to finish
     tasks = Enum.map(files, fn filename ->
       Task.async(fn ->
         input_path = Path.join(input_dir, filename)
@@ -214,25 +227,29 @@ defmodule PythonHighlighter do
 
     Enum.each(tasks, fn task -> Task.await(task, :infinity) end)
 
-    IO.puts("All files processed!")
+    IO.puts("Files were processed")
   end
 
+  #measure the execution time
   def measure_time(function, parameters) do
     {time, _result} = :timer.tc(function, parameters)
     time / 1_000_000
   end
 
+  #execute the highlighter and shows the total tilme
   def run(input_dir, output_dir) do
     seconds = measure_time(&highlight_parallel/2, [input_dir, output_dir])
     IO.puts("Total time: #{seconds} seconds")
   end
 
+  # main wil read and process to output to wite the html
   def lexer_categ(file) do
     lines = file
       |> File.stream!()
       |> Enum.map(fn line -> String.replace(line, "\n", "") end)
 
     html = process_lin(lines, "")
+    #we create the html file and insert it into a new one
     web = File.read!("display.html")
     html_final = String.replace(web, "{{result}}", html)
     File.write!("resultado.html", html_final)
