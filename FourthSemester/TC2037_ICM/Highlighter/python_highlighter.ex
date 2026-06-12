@@ -38,17 +38,16 @@ defmodule PythonHighlighter do
   end
 
   def classify(char, state) do
-    letters    = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
-    digits     = String.graphemes("0123456789")
-    operators  = String.graphemes("+-*/%=<>!&|^")
+    letters = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
+    digits = String.graphemes("0123456789")
+    operators = String.graphemes("+-*/%=<>!&|^")
     delimiters = String.graphemes(":()[]{},;.")
-    exponent   = String.graphemes("eE")
+    exponent = String.graphemes("eE")
 
     cond do
       state == 1 and char == "\"" -> 8
       state == 1 and char == "'"  -> 9
       state == 1 -> 5
-
       char == " " or char == "\t" -> 0
       char == "-" -> 1
       char == "+" -> 2
@@ -93,19 +92,7 @@ defmodule PythonHighlighter do
     end
   end
 
-  defp triple_quote?([c1, c2, c3 | _], q), do: c1 == q and c2 == q and c3 == q
-  defp triple_quote?(_, _), do: false
 
-  defp read_triple([c1, c2, c3 | rest], q, accum) do
-    if c1 == q and c2 == q and c3 == q do
-      {accum <> q <> q <> q, rest}
-    else
-      read_triple([c2, c3 | rest], q, accum <> c1)
-    end
-  end
-  defp read_triple([c1], _q, accum), do: {accum <> c1, []}
-  defp read_triple([c1, c2], _q, accum), do: {accum <> c1 <> c2,[]}
-  defp read_triple([], _q, accum), do: {accum, []}
 
   def process_characters([], state, lexer, html_accum) do
     if lexer != "" do
@@ -120,15 +107,8 @@ defmodule PythonHighlighter do
   end
 
   def process_characters([char | rest], state, lexer, html_accum) do
-    if state == 0 and (char == "\"" or char == "'") and triple_quote?([char | rest], char) do
-      [_q1, _q2 | after_open] = rest
-      {content, remaining} = read_triple(after_open, char, "")
-      html_token = "<span class=\"string\">" <> char <> char <> char <> content <> "</span>"
-      process_characters(remaining, 0, "", html_accum <> html_token)
-    else
-      col = classify(char, state)
-      new_state = obtain_state(state, col)
-
+    col = classify(char, state)
+    new_state = obtain_state(state, col)
       cond do
         new_state >= 13 ->
           if lexer != "" do
@@ -155,14 +135,54 @@ defmodule PythonHighlighter do
           process_characters(rest, new_state, lexer <> char, html_accum)
       end
     end
+
+  defp read_multiline_triple([], _quote, accum) do
+    {"<span class=\"string\">" <> accum <> "</span>", []}
+  end
+
+  defp read_multiline_triple([line | rest], quote, accum) do
+    close = quote <> quote <> quote
+    if String.contains?(line, close) do
+      [before, after_close] = String.split(line, close, parts: 2)
+      full_string = accum <> before <> close
+      html_token  = "<span class=\"string\">" <> full_string <> "</span>"
+      {html_token, [after_close | rest]}
+    else
+      read_multiline_triple(rest, quote, accum <> line <> "\n")
+    end
   end
 
   def process_lin([], html_accum), do: html_accum
-
   def process_lin([line | rest], html_accum) do
-    characters = String.graphemes(line <> " ")
-    html_line  = process_characters(characters, 0, "", "")
-    process_lin(rest, html_accum <> html_line <> "\n")
+    cond do
+      String.contains?(line, "\"\"\"") ->
+        [before, after_open] = String.split(line, "\"\"\"", parts: 2)
+        before_html = if before != "" do
+          process_characters(String.graphemes(before <> " "), 0, "", "")
+        else
+          ""
+        end
+        {string_html, remaining} = read_multiline_triple([after_open | rest], "\"", "\"\"\"")
+        process_lin(remaining, html_accum <> before_html <> string_html <> "\n")
+
+      String.contains?(line, "'''") ->
+        [before, after_open] = String.split(line, "'''", parts: 2)
+        before_html = if before != "" do
+          process_characters(String.graphemes(before <> " "), 0, "", "")
+        else
+          ""
+        end
+        {string_html, remaining} = read_multiline_triple([after_open | rest], "'", "'''")
+        process_lin(remaining, html_accum <> before_html <> string_html <> "\n")
+
+      line == "" ->
+        process_lin(rest, html_accum <> "\n")
+
+      true ->
+        characters = String.graphemes(line <> " ")
+        html_line  = process_characters(characters, 0, "", "")
+        process_lin(rest, html_accum <> html_line <> "\n")
+    end
   end
 
   def process_file(input_path, output_path) do
@@ -192,22 +212,19 @@ defmodule PythonHighlighter do
       end)
     end)
 
-    # wait for every task to finish
     Enum.each(tasks, fn task -> Task.await(task, :infinity) end)
 
     IO.puts("All files processed!")
   end
 
+  def measure_time(function, parameters) do
+    {time, _result} = :timer.tc(function, parameters)
+    time / 1_000_000
+  end
 
   def run(input_dir, output_dir) do
-    start = :os.system_time(:microsecond)
-
-    highlight_parallel(input_dir, output_dir)
-
-    finish = :os.system_time(:microsecond)
-    elapsed = finish - start
-
-    IO.puts("Total time: #{elapsed} µs  (#{div(elapsed, 1000)} ms)")
+    seconds = measure_time(&highlight_parallel/2, [input_dir, output_dir])
+    IO.puts("Total time: #{seconds} seconds")
   end
 
   def lexer_categ(file) do
