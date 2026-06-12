@@ -1,9 +1,7 @@
-#Python highlighter
-#E1 Syntax highlighter
+#E2 Syntax highlighter with parallel processing
 #Paulina Cortez Balvanera
 #A01782041
-#May 15, 2026
-
+#June 11, 2026
 
 defmodule PythonHighlighter do
 
@@ -40,16 +38,16 @@ defmodule PythonHighlighter do
   end
 
   def classify(char, state) do
-    letters = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
-    digits = String.graphemes("0123456789")
-    operators = String.graphemes("+-*/%=<>!&|^")
-    delimitors = String.graphemes(":()[]{},;.")
-    exponent = String.graphemes("eE")
+    letters    = String.graphemes("abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ")
+    digits     = String.graphemes("0123456789")
+    operators  = String.graphemes("+-*/%=<>!&|^")
+    delimiters = String.graphemes(":()[]{},;.")
+    exponent   = String.graphemes("eE")
 
     cond do
       state == 1 and char == "\"" -> 8
       state == 1 and char == "'"  -> 9
-      state == 1               -> 5
+      state == 1 -> 5
 
       char == " " or char == "\t" -> 0
       char == "-" -> 1
@@ -59,7 +57,7 @@ defmodule PythonHighlighter do
       Enum.member?(exponent, char) and (state == 2 or state == 7) -> 12
       Enum.member?(letters, char) -> 5
       char == "_" -> 6
-      Enum.member?(delimitors, char) -> 7
+      Enum.member?(delimiters, char) -> 7
       char == "\"" -> 8
       char == "'" -> 9
       Enum.member?(digits, char) -> 10
@@ -95,30 +93,19 @@ defmodule PythonHighlighter do
     end
   end
 
-  defp triple_quote?([char1, char2, char | _], quote_char),
-  do: char1 == quote_char and char2 == quote_char and char == quote_char
+  defp triple_quote?([c1, c2, c3 | _], q), do: c1 == q and c2 == q and c3 == q
+  defp triple_quote?(_, _), do: false
 
-  defp triple_quote?(_, _),
-  do: false
-
-  defp read_triple([char1, char2, char | rest], quote_char, accum) do
-    if char1 == quote_char and char2 == quote_char and char == quote_char do {accum <> quote_char <> quote_char <> quote_char, rest}
-  else
-    read_triple([char2, char | rest], quote_char, accum <> char1)
+  defp read_triple([c1, c2, c3 | rest], q, accum) do
+    if c1 == q and c2 == q and c3 == q do
+      {accum <> q <> q <> q, rest}
+    else
+      read_triple([c2, c3 | rest], q, accum <> c1)
+    end
   end
-end
-
-  defp read_triple([char1], _quote_char, accum) do
-    {accum <> char1, []}
-  end
-
-  defp read_triple([char1, char2], _quote_char, accum) do
-    {accum <> char1 <> char2, []}
-  end
-
-  defp read_triple([], _quote_char, accum) do
-    {accum, []}
-  end
+  defp read_triple([c1], _q, accum), do: {accum <> c1, []}
+  defp read_triple([c1, c2], _q, accum), do: {accum <> c1 <> c2,[]}
+  defp read_triple([], _q, accum), do: {accum, []}
 
   def process_characters([], state, lexer, html_accum) do
     if lexer != "" do
@@ -134,7 +121,7 @@ end
 
   def process_characters([char | rest], state, lexer, html_accum) do
     if state == 0 and (char == "\"" or char == "'") and triple_quote?([char | rest], char) do
-      [_q_char1, _q_char2 | after_open] = rest
+      [_q1, _q2 | after_open] = rest
       {content, remaining} = read_triple(after_open, char, "")
       html_token = "<span class=\"string\">" <> char <> char <> char <> content <> "</span>"
       process_characters(remaining, 0, "", html_accum <> html_token)
@@ -170,26 +157,70 @@ end
     end
   end
 
-  def process_lin([], html_accum) do
-    html_accum
-  end
+  def process_lin([], html_accum), do: html_accum
 
   def process_lin([line | rest], html_accum) do
     characters = String.graphemes(line <> " ")
-    html_line = process_characters(characters, 0, "", "")
+    html_line  = process_characters(characters, 0, "", "")
     process_lin(rest, html_accum <> html_line <> "\n")
   end
 
-  def lexer_categ(file) do
-    lines = File.stream!(file)
+  def process_file(input_path, output_path) do
+    lines = input_path
+      |> File.stream!()
       |> Enum.map(fn line -> String.replace(line, "\n", "") end)
 
     html = process_lin(lines, "")
+    web = File.read!("display.html")
+    html_final = String.replace(web, "{{result}}", html)
+    File.write!(output_path, html_final)
+  end
 
+  def highlight_parallel(input_dir, output_dir) do
+    File.mkdir_p!(output_dir)
+
+    files = input_dir
+      |> File.ls!()
+      |> Enum.filter(fn f -> String.ends_with?(f, ".py") end)
+
+    tasks = Enum.map(files, fn filename ->
+      Task.async(fn ->
+        input_path = Path.join(input_dir, filename)
+        output_name = String.replace(filename, ".py", ".html")
+        output_path = Path.join(output_dir, output_name)
+        process_file(input_path, output_path)
+      end)
+    end)
+
+    # wait for every task to finish
+    Enum.each(tasks, fn task -> Task.await(task, :infinity) end)
+
+    IO.puts("All files processed!")
+  end
+
+
+  def run(input_dir, output_dir) do
+    start = :os.system_time(:microsecond)
+
+    highlight_parallel(input_dir, output_dir)
+
+    finish = :os.system_time(:microsecond)
+    elapsed = finish - start
+
+    IO.puts("Total time: #{elapsed} µs  (#{div(elapsed, 1000)} ms)")
+  end
+
+  def lexer_categ(file) do
+    lines = file
+      |> File.stream!()
+      |> Enum.map(fn line -> String.replace(line, "\n", "") end)
+
+    html = process_lin(lines, "")
     web = File.read!("display.html")
     html_final = String.replace(web, "{{result}}", html)
     File.write!("resultado.html", html_final)
 
     IO.puts("html file has been created")
   end
+
 end
